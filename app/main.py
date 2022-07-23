@@ -4,6 +4,7 @@ from .database import get_db, engine
 from sqlalchemy.orm import Session
 models.Base.metadata.create_all(bind=engine)
 from typing import List
+
 app = FastAPI()
 
 @app.get("/")
