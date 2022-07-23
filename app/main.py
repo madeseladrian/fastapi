@@ -44,11 +44,6 @@ def create_posts(post: Post, db: Session = Depends(get_db)):
   db.refresh(new_post)
   return {"data": new_post}
 
-@app.get("/posts/latest")
-def get_latest_post():
-  post = my_posts[-1]
-  return {"post_detail": post}
-
 @app.get("/posts/{id}")
 def get_post(id: int, response: Response):
   post = find_post(id)
