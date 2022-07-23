@@ -1,6 +1,5 @@
 from fastapi import FastAPI, Response, status, HTTPException, Depends
 from pydantic import BaseModel
-from random import randrange
 from . import models
 from .database import get_db, engine
 from sqlalchemy.orm import Session
@@ -38,11 +37,12 @@ def get_posts(db: Session = Depends(get_db)):
   return {"data": posts}
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
-def create_posts(post: Post):
-  post_dict = post.dict()
-  post_dict['id'] = randrange(0, 10000000)
-  my_posts.append(post_dict)
-  return {"data": my_posts}
+def create_posts(post: Post, db: Session = Depends(get_db)):
+  new_post = models.Post(title=post.title, content=post.content, published=post.published)
+  db.add(new_post)
+  db.commit()
+  db.refresh(new_post)
+  return {"data": new_post}
 
 @app.get("/posts/latest")
 def get_latest_post():
