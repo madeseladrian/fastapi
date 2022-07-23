@@ -3,14 +3,14 @@ from . import models, schemas
 from .database import get_db, engine
 from sqlalchemy.orm import Session
 models.Base.metadata.create_all(bind=engine)
-
+from typing import List
 app = FastAPI()
 
 @app.get("/")
 def root():
   return {"message": "Welcome to FastApi"}
 
-@app.get("/posts")
+@app.get("/posts", response_model=List[schemas.Post])
 def get_posts(db: Session = Depends(get_db)):
   posts = db.query(models.Post).all()
   return posts
@@ -26,7 +26,7 @@ def create_posts(post: schemas.PostCreate, db: Session = Depends(get_db)):
 @app.get("/posts/{id}", response_model=schemas.Post)
 def get_post(id: int, db: Session = Depends(get_db)):
   post = db.query(models.Post).filter(models.Post.id == id).first()
-  
+
   if not post:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
   return post
