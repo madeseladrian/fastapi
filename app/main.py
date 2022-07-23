@@ -52,11 +52,13 @@ def get_post(id: int, db: Session = Depends(get_db)):
   return {"post_detail": post}
 
 @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id: int):
-  index = find_index_post(id)
-  if index == None:
+def delete_post(id: int, db: Session = Depends(get_db)):
+  post = db.query(models.Post).filter(models.Post.id == id)
+  if post.first() == None:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
-  my_posts.pop(index)
+  
+  post.delete(synchronize_session=False)
+  db.commit()
   return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 @app.put("/posts/{id}")
