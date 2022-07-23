@@ -1,7 +1,10 @@
-from fastapi import FastAPI, Response, status, HTTPException
+from fastapi import FastAPI, Response, status, HTTPException, Depends
 from pydantic import BaseModel
 from random import randrange
-from typing import Optional
+from . import models
+from .database import get_db, engine
+from sqlalchemy.orm import Session
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
@@ -9,7 +12,6 @@ class Post(BaseModel):
   title: str
   content: str
   published: bool = True
-  rating: Optional[int] = None
 
 my_posts = [
   {"title": "title of post 1", "content": "content of post 1", "id": 1},
@@ -33,6 +35,10 @@ def root():
 @app.get("/posts")
 def get_posts():
   return {"data": my_posts}
+
+@app.get("/sql")
+def test_posts(db: Session = Depends(get_db)):
+  return {"status": "success"}
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
 def create_posts(post: Post):
