@@ -33,12 +33,9 @@ def root():
   return {"message": "Welcome to FastApi"}
 
 @app.get("/posts")
-def get_posts():
-  return {"data": my_posts}
-
-@app.get("/sql")
-def test_posts(db: Session = Depends(get_db)):
-  return {"status": "success"}
+def get_posts(db: Session = Depends(get_db)):
+  posts = db.query(models.Post).all()
+  return {"data": posts}
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
 def create_posts(post: Post):
