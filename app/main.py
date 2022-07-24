@@ -30,7 +30,10 @@ def get_post(id: int, db: Session = Depends(get_db)):
   post = db.query(models.Post).filter(models.Post.id == id).first()
 
   if not post:
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
+    raise HTTPException(
+      status_code=status.HTTP_404_NOT_FOUND, 
+      detail=f"post with id: {id} was not found"
+    )
   return post
 
 @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -38,7 +41,10 @@ def delete_post(id: int, db: Session = Depends(get_db)):
   post = db.query(models.Post).filter(models.Post.id == id)
 
   if post.first() == None:
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
+    raise HTTPException(
+      status_code=status.HTTP_404_NOT_FOUND, 
+      detail=f"post with id: {id} was not found"
+    )
   
   post.delete(synchronize_session=False)
   db.commit()
@@ -50,7 +56,10 @@ def update_post(id: int, post: schemas.PostCreate, db: Session = Depends(get_db)
   updated_post = post_query.first()
 
   if updated_post == None:
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
+    raise HTTPException(
+      status_code=status.HTTP_404_NOT_FOUND, 
+      detail=f"post with id: {id} was not found"
+    )
   
   post_query.update(post.dict(), synchronize_session=False)
   db.commit()
@@ -66,3 +75,15 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
   db.commit()
   db.refresh(new_user)
   return new_user
+
+@app.get('/users/{id}', response_model=schemas.UserOut)
+def get_user(id: int, db: Session = Depends(get_db)):
+  user = db.query(models.User).filter(models.User.id == id).first()
+
+  if not user:
+    raise HTTPException(
+      status_code=status.HTTP_404_NOT_FOUND, 
+      detail=f"user with id: {id} does not exist"
+    )
+  
+  return user
